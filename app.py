@@ -2,6 +2,7 @@
 from base_ctrl import BaseController
 import threading
 import yaml, os
+from collections import deque
 
 # raspberry pi version check.
 def is_raspberry_pi5():
@@ -107,7 +108,9 @@ cmd_actions = {
     f['code']['base_of']: lambda: base.lights_ctrl(0, base.head_light_status),
     f['code']['base_on']: lambda: base.lights_ctrl(255, base.head_light_status),
     f['code']['head_ct']: lambda: cvf.head_light_ctrl(3),
-    f['code']['base_ct']: base.base_lights_ctrl
+    f['code']['base_ct']: base.base_lights_ctrl,
+    f['code']['spray_0']: lambda: base.spray(False),
+    f['code']['spray_1']: lambda: base.spray(True)
 }
 
 cmd_feedback_actions = [f['code']['cv_none'], f['code']['cv_moti'],
@@ -131,17 +134,25 @@ def process_cv_info(cmd):
 
 # Function to generate video frames from the camera
 def generate_frames():
+    frame_buffer = deque(maxlen=30)
+    last_time = time.time()
     while True:
         frame = cvf.frame_process()
-        # print(cvf.cv_info())
-        try:
+        current_time = time.time()
+        frame_interval = 1 / 30
+
+        if si.wifi_rssi < -60:
+            frame_interval = 1 / 15  # Reduce frame rate to 15 FPS
+        else:
+            frame_buffer.clear()  # Clear the buffer when quality improves
+        
+        if (current_time - last_time) >= frame_interval:
+            last_time = current_time
+            frame_buffer.append(frame)
             yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n') 
-        except Exception as e:
-            print("An [generate_frames] error occurred:", e)
-
-
-
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        else:
+            time.sleep(frame_interval - (current_time - last_time))
 
 
 

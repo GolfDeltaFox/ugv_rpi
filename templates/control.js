@@ -79,6 +79,8 @@ fetch('/config')
       base_on = yamlObject.code.base_on;
       head_ct = yamlObject.code.head_ct;
       base_ct = yamlObject.code.base_ct;
+      spray_0 = yamlObject.code.spray_0;
+      spray_1 = yamlObject.code.spray_1;
 
       s_panid = yamlObject.code.s_panid;
       release = yamlObject.code.release;
@@ -355,6 +357,11 @@ try {
 } catch(e) {
     console.log(e);
 }
+document.addEventListener('keydown', function(event) {
+  if (event.code === 'Space') {
+    event.preventDefault();
+  }
+});
 document.addEventListener('mousemove', (e) => {
     if (isDragging && isEnlarged) {
         moveStick(e);
@@ -902,7 +909,8 @@ var keyMap = {
     76: 'l',
     79: 'o',
     84: 't',
-    85: 'u'
+    85: 'u',
+    32: 'space'
 };
 
 var ctrl_buttons = {
@@ -919,7 +927,8 @@ var ctrl_buttons = {
     l: 0,
     o: 0,
     t: 0,
-    u: 0
+    u: 0,
+    space: 0
 };
 
 function updateButton(key, value) {
@@ -942,6 +951,13 @@ function cmdProcess() {
         cmdSend(head_ct, 0, 0);
     }
 
+    //spray control
+    if (ctrl_buttons.space == 1){
+        cmdSend(spray_1, 0, 0);
+    }
+    else if (ctrl_buttons.space == 0){
+        cmdSend(spray_0, 0, 0);
+    }
     // Gimbal Ctrl
     if (ctrl_buttons.i == 1){
         stickSendY -= 10;
