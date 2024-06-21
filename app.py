@@ -100,6 +100,10 @@ cmd_actions = {
     f['code']['led_aut']: lambda: cvf.head_light_ctrl(1),
     f['code']['led_ton']: lambda: cvf.head_light_ctrl(2),
 
+    f['code']['video_l']: lambda: cvf.set_video_resolution(10, 200, 200),
+    f['code']['video_m']: lambda: cvf.set_video_resolution(20, 600, 600),
+    f['code']['video_h']: lambda: cvf.set_video_resolution(30, 1000, 1000),
+
     f['code']['release']: lambda: base.bus_servo_torque_lock(255, 0),
     f['code']['s_panid']: lambda: base.bus_servo_id_set(255, 2),
     f['code']['s_tilid']: lambda: base.bus_servo_id_set(255, 1),
@@ -134,15 +138,15 @@ def process_cv_info(cmd):
 
 # Function to generate video frames from the camera
 def generate_frames():
-    frame_buffer = deque(maxlen=30)
+    frame_buffer = deque(maxlen=15)
     last_time = time.time()
     while True:
         frame = cvf.frame_process()
         current_time = time.time()
-        frame_interval = 1 / 30
-
+        frame_interval = 1 / 15
+        # print(si.wifi_rssi)
         if si.wifi_rssi < -60:
-            frame_interval = 1 / 15  # Reduce frame rate to 15 FPS
+            frame_interval = 1 / 5  # Reduce frame rate to 15 FPS
         else:
             frame_buffer.clear()  # Clear the buffer when quality improves
         

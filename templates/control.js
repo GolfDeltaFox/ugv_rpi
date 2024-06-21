@@ -11,6 +11,8 @@ var re_none, re_capt, re_reco, led_off, led_aut, led_ton, base_of, base_on;
 var head_ct, base_ct;
 var s_panid, release, set_mid, s_tilid;
 var armZ, armR, armE;
+var video_l, video_m, video_h;
+
 
 var detect_type, led_mode, detect_react, picture_size, video_size, cpu_load;
 var cpu_temp, ram_usage, pan_angle, tilt_angle, wifi_rssi, base_voltage, video_fps;
@@ -69,6 +71,10 @@ fetch('/config')
       mp_face = yamlObject.code.mp_face;
       mp_pose = yamlObject.code.mp_pose;
 
+      video_l = yamlObject.code.video_l;
+      video_m = yamlObject.code.video_m;
+      video_h = yamlObject.code.video_h;
+        
       re_none = yamlObject.code.re_none;
       re_capt = yamlObject.code.re_capt;
       re_reco = yamlObject.code.re_reco;
@@ -655,6 +661,7 @@ socket.on('update', function(data) {
             MPButtons[1].classList.add("ctl_btn_active");
         }
 
+        
         if (data[detect_type] == cv_auto && cv_heartbeat_stop_flag == false) {
             cv_heartbeat_stop_flag = true;
         } else if (cv_heartbeat_stop_flag == true) {
