@@ -12,7 +12,7 @@ var head_ct, base_ct;
 var s_panid, release, set_mid, s_tilid;
 var armZ, armR, armE;
 var video_l, video_m, video_h;
-
+var larm_up, larm_dn, rarm_up, rarm_dn;
 
 var detect_type, led_mode, detect_react, picture_size, video_size, cpu_load;
 var cpu_temp, ram_usage, pan_angle, tilt_angle, wifi_rssi, base_voltage, video_fps;
@@ -88,6 +88,11 @@ fetch('/config')
       spray_0 = yamlObject.code.spray_0;
       spray_1 = yamlObject.code.spray_1;
 
+      larm_up = yamlObject.code.larm_up;
+      larm_dn = yamlObject.code.larm_dn;
+      rarm_up = yamlObject.code.rarm_up;
+      rarm_dn = yamlObject.code.rarm_dn;
+        
       s_panid = yamlObject.code.s_panid;
       release = yamlObject.code.release;
       set_mid = yamlObject.code.set_mid;
@@ -814,9 +819,9 @@ var isInputFocused = false;
 
 var moveKeyMap = {
     16: 'shift', // acce
-    49: 'low',
-    50: 'middle',
-    51: 'fast',
+    // 49: 'low',
+    // 50: 'middle',
+    // 51: 'fast',
     65: 'left',   // A
     87: 'forward', // W
     83: 'backward', // S
@@ -903,7 +908,9 @@ function updateMoveButton(key, value) {
 
 
 var keyMap = {
-    67: "c",
+    49: '_1',
+    51: '_3',
+    67: 'c',
     82: 'r',
     69: 'e',
     70: 'f',
@@ -915,6 +922,7 @@ var keyMap = {
     74: 'j',
     76: 'l',
     79: 'o',
+    81: 'q',
     84: 't',
     85: 'u',
     32: 'space'
@@ -935,7 +943,10 @@ var ctrl_buttons = {
     o: 0,
     t: 0,
     u: 0,
-    space: 0
+    space: 0,
+    q: 0,
+    _1: 0,
+    _3: 0
 };
 
 function updateButton(key, value) {
@@ -948,16 +959,31 @@ function cmdProcess() {
         cmdSend(base_ct, 0, 0);
     }
 
-    // Photo Capture
-    if (ctrl_buttons.e == 1){
-        cmdSend(pic_cap, 0, 0);
-    }
+    // // Photo Capture
+    // if (ctrl_buttons.e == 1){
+    //     cmdSend(pic_cap, 0, 0);
+    // }
 
     // Function Ctrl
     if (ctrl_buttons.r == 1){
         cmdSend(head_ct, 0, 0);
     }
 
+    //left arm control
+    if (ctrl_buttons._1 == 1){
+        cmdSend(larm_up, 0, 0);
+    }
+    else if (ctrl_buttons.q == 1){
+        cmdSend(larm_dn, 0, 0);
+    }
+    //right arm control
+    if (ctrl_buttons._3 == 1){
+        cmdSend(rarm_up, 0, 0);
+    }
+    else if (ctrl_buttons.e == 1){
+        cmdSend(rarm_dn, 0, 0);
+    }
+    
     //spray control
     if (ctrl_buttons.space == 1){
         cmdSend(spray_1, 0, 0);

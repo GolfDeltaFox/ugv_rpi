@@ -114,7 +114,13 @@ cmd_actions = {
     f['code']['head_ct']: lambda: cvf.head_light_ctrl(3),
     f['code']['base_ct']: base.base_lights_ctrl,
     f['code']['spray_0']: lambda: base.spray(False),
-    f['code']['spray_1']: lambda: base.spray(True)
+    f['code']['spray_1']: lambda: base.spray(True),
+    
+    f['code']['larm_up']: lambda: base.move_arms('left', 10),
+    f['code']['larm_dn']: lambda: base.move_arms('left', -10),
+    f['code']['rarm_up']: lambda: base.move_arms('right', -10),
+    f['code']['rarm_dn']: lambda: base.move_arms('right', 10)
+    
 }
 
 cmd_feedback_actions = [f['code']['cv_none'], f['code']['cv_moti'],

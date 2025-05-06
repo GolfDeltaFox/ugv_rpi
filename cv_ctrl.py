@@ -160,7 +160,14 @@ class OpencvFuncs():
             self.picam2.configure(self.picam2.create_video_configuration(main={"format": 'XRGB8888', "size": (f['video']['default_res_w'], f['video']['default_res_h'])}))
             self.picam2.start()
 
-
+    def set_video_resolution(self, quality, res_w, res_h):
+        self.video_quality = quality
+        self.res_w = res_w
+        self.res_h = res_h
+        if not self.usb_camera_connected:
+            self.picam2.stop()
+            self.picam2.configure(self.picam2.create_video_configuration(main={"format": 'XRGB8888', "size": (self.res_w, self.res_h)}))
+            self.picam2.start()
 
     def frame_process(self):
         try:

@@ -214,6 +214,13 @@ class BaseController:
             GPIO.output(23, GPIO.HIGH)
         else:
             GPIO.output(23, GPIO.LOW)
+
+    def move_arms(self, side, angle):
+        ids = {"left":4,"right":3}
+        id = ids[side]
+        self.send_command(data = {"T":502,"id":id})
+        self.send_command(data = {"T":145,"id":id,"angle":angle,"acc":190, "spd":200})
+        time.sleep(0.2)
     
     def base_oled(self, input_line, input_text):
         data = {"T":3,"lineNum":input_line,"Text":input_text}
