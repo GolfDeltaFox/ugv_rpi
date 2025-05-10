@@ -211,6 +211,7 @@ class BaseController:
 
     def spray(self, active):
         if active:
+            print("Spraying")
             GPIO.output(23, GPIO.HIGH)
         else:
             GPIO.output(23, GPIO.LOW)

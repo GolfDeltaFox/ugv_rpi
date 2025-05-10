@@ -3,6 +3,12 @@ from base_ctrl import BaseController
 import threading
 import yaml, os
 from collections import deque
+import threading
+from webrtc_server import start_webrtc_server
+import httpx
+# from webrtc_server import start_webrtc_server, set_camera_instance
+
+
 
 # raspberry pi version check.
 def is_raspberry_pi5():
@@ -47,6 +53,7 @@ import logging
 import cv_ctrl
 import audio_ctrl
 import os_info
+from flask_cors import CORS
 
 # Get system info
 UPLOAD_FOLDER = thisPath + '/sounds/others'
@@ -54,6 +61,7 @@ si = os_info.SystemInfo()
 
 # Create a Flask app instance
 app = Flask(__name__)
+CORS(app)
 # log = logging.getLogger('werkzeug')
 # log.disabled = True
 socketio = SocketIO(app)
@@ -66,9 +74,13 @@ MAX_CONNECTIONS = 1
 
 # Set to keep track of RTCPeerConnection instances
 pcs = set()
-
+# from webrtc_server import WebRTCService
 # Camera funcs
-cvf = cv_ctrl.OpencvFuncs(thisPath, base)
+# cvf = cv_ctrl.OpencvFuncs(thisPath, base)
+cvf = cv_ctrl.OpencvFuncs(thisPath, base, use_camera=True)
+
+# Pass cv_ctrl instance to WebRTC server
+threading.Thread(target=lambda: start_webrtc_server(cvf), daemon=True).start()
 
 cmd_actions = {
     f['code']['zoom_x1']: lambda: cvf.scale_ctrl(1),
@@ -221,52 +233,6 @@ def delete_video():
         print(e)
         return jsonify(success=False)
 
-
-
-
-# Video WebRTC
-# Function to manage connections
-def manage_connections(pc_id):
-    if len(active_pcs) >= MAX_CONNECTIONS:
-        # If maximum connections reached, terminate the oldest connection
-        oldest_pc_id = next(iter(active_pcs))
-        old_pc = active_pcs.pop(oldest_pc_id)
-        old_pc.close()
-
-    # Add new connection to active connections
-    active_pcs[pc_id] = pc
-
-# Asynchronous function to handle offer exchange
-async def offer_async():
-    params = await request.json
-    offer = RTCSessionDescription(sdp=params["sdp"], type=params["type"])
-
-    # Create an RTCPeerConnection instance
-    pc = RTCPeerConnection()
-
-    # Generate a unique ID for the RTCPeerConnection
-    pc_id = "PeerConnection(%s)" % uuid.uuid4()
-    pc_id = pc_id[:8]
-
-    # Manage connections
-    manage_connections(pc_id)
-
-    # Create and set the local description
-    await pc.createOffer(offer)
-    await pc.setLocalDescription(offer)
-
-    # Prepare the response data with local SDP and type
-    response_data = {"sdp": pc.localDescription.sdp, "type": pc.localDescription.type}
-
-    return jsonify(response_data)
-
-# Wrapper function for running the asynchronous offer function
-def offer():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    
-    future = asyncio.run_coroutine_threadsafe(offer_async(), loop)
-    return future.result()
 
 # set product version
 def set_version(input_main, input_module):
@@ -437,16 +403,6 @@ def cmdline_ctrl(args_string):
     elif args[0] == 'test':
         cvf.update_base_data({"T":1003,"mac":1111,"megs":"helllo aaaaaaaa"})
 
-
-# Route to handle the offer request
-@app.route('/offer', methods=['POST'])
-def offer_route():
-    return offer()
-
-# Route to stream video frames
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/send_command', methods=['POST'])
 def handle_command():

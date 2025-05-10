@@ -70,7 +70,10 @@ code:
   video_l: 10109
   video_m: 10110
   video_h: 10111
-  
+  larm_up: 10112
+  larm_dn: 10113
+  rarm_up: 10114
+  rarm_dn: 10115
 cv:
   aimed_error: 8
   color_lower:
